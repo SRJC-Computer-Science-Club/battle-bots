@@ -1,3 +1,6 @@
+
+// These variables are read only
+
 float Health
 int MaxHealth
 
