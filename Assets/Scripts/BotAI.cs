@@ -20,7 +20,7 @@ public class BotAI : MonoBehaviour
     private Rigidbody2D rb;
     private float radius;
 
-    public Teams team;
+    private Teams team;
 
 
     // Health
@@ -56,6 +56,12 @@ public class BotAI : MonoBehaviour
 
     /*************************************************************************/
     // GETTERS
+
+
+    public Teams Team
+    {
+        get { return team; }
+    }
 
 
 
@@ -162,6 +168,24 @@ public class BotAI : MonoBehaviour
 
         arenaWidth = 2 * halfArenaWidth;
         arenaHeight = 2 * halfArenaHeight;
+
+
+        switch( gameObject.layer )
+        {
+            case 8:
+                team = Teams.BLUE;
+                break;
+            case 9:
+                team = Teams.ORANGE;
+                break;
+            case 10:
+                team = Teams.GREEN;
+                break;
+            case 11:
+                team = Teams.PURPLE;
+                break;
+
+        }
     }
 
 
