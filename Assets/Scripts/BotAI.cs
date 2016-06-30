@@ -367,6 +367,26 @@ public class BotAI : MonoBehaviour
 
 
 
+    /*************************************************************************/
+    // FindBots
+
+
+    public BotAI[] FindBots()
+    {
+        return GameObject.FindObjectsOfType<BotAI>();
+    }
+
+
+    public BotAI[] FindEnemies()
+    {
+        return FilterEnemies( FindBots() );
+    }
+
+
+    public BotAI[] FindAllies()
+    {
+        return FilterAllies( FindBots() );
+    }
 
 
     /*************************************************************************/
@@ -548,15 +568,19 @@ public class BotAI : MonoBehaviour
     // Helpers
 
 
-    private BotAI[] FindBots()
-    {
-        return GameObject.FindObjectsOfType<BotAI>();
-    }
-
-
     private BotAI[] FilterEnemies( BotAI[] bots )
     {
-        BotAI[] enemies = new BotAI[ bots.Length - 1 ];
+        int enemyCount = 0;
+
+        foreach ( BotAI bot in bots )
+        {
+            if ( bot.gameObject.layer != gameObject.layer )
+            {
+                enemyCount++;
+            }
+        }
+
+        BotAI[] enemies = new BotAI[ enemyCount ];
         int i = 0;
 
         foreach ( BotAI bot in bots )
@@ -574,7 +598,17 @@ public class BotAI : MonoBehaviour
 
     private BotAI[] FilterAllies( BotAI[] bots )
     {
-        BotAI[] allies = new BotAI[ bots.Length - 1 ];
+        int allyCount = 0;
+
+        foreach ( BotAI bot in bots )
+        {
+            if ( bot.gameObject.layer == gameObject.layer )
+            {
+                allyCount++;
+            }
+        }
+
+        BotAI[] allies = new BotAI[ allyCount ];
         int i = 0;
 
         foreach ( BotAI bot in bots )
