@@ -45,6 +45,14 @@ public class BotAI : MonoBehaviour
     private float turnSpeed = 0.05f;
 
 
+    // Arena size
+    private float halfArenaWidth;
+    private float halfArenaHeight;
+    private float arenaWidth;
+    private float arenaHeight;
+
+
+
 
     /*************************************************************************/
     // GETTERS
@@ -122,7 +130,19 @@ public class BotAI : MonoBehaviour
         get { return turnSpeed; }
     }
 
-    
+
+
+    public float ArenaWidth
+    {
+        get { return arenaWidth; }
+    }
+
+    public float ArenaHeight
+    {
+        get { return arenaHeight; }
+    }
+
+
     /*************************************************************************/
 
 
@@ -136,6 +156,12 @@ public class BotAI : MonoBehaviour
         StatusBar = Instantiate( StatusBar , transform.position + new Vector3( 0 , 0.8f , 0 )  , Quaternion.identity ) as GameObject;
         healthBar = StatusBar.transform.FindChild( "healthBar" ).GetComponent<Image>();
         shieldBar = StatusBar.transform.FindChild( "shieldBar" ).GetComponent<Image>();
+
+        halfArenaWidth = Camera.main.orthographicSize * Screen.width / ( float ) Screen.height - radius;
+        halfArenaHeight = Camera.main.orthographicSize - radius;
+
+        arenaWidth = 2 * halfArenaWidth;
+        arenaHeight = 2 * halfArenaHeight;
     }
 
 
@@ -164,17 +190,11 @@ public class BotAI : MonoBehaviour
     {
         Vector3 pos = transform.position;
 
-        float screenRatio = Screen.width / ( float ) Screen.height;
-        float screenWidth = Camera.main.orthographicSize * screenRatio;
-
-        pos.x = Mathf.Clamp( pos.x , -screenWidth + radius, screenWidth - radius );
-        pos.y = Mathf.Clamp( pos.y , -Camera.main.orthographicSize + radius , Camera.main.orthographicSize - radius );
-
-
+        pos.x = Mathf.Clamp( pos.x , -halfArenaWidth, halfArenaWidth );
+        pos.y = Mathf.Clamp( pos.y , -halfArenaHeight , halfArenaHeight );
 
         transform.position = pos;
         StatusBar.transform.position = pos + new Vector3( 0 , 0.8f , 0 );
-
     }
 
 
