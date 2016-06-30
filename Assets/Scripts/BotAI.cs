@@ -22,6 +22,7 @@ public class BotAI : MonoBehaviour
 
     private Teams team;
 
+    public int ID = 0;
 
     // Health
     private float health = 100;
@@ -147,6 +148,7 @@ public class BotAI : MonoBehaviour
     {
         get { return arenaHeight; }
     }
+
 
 
     /*************************************************************************/
