@@ -31,20 +31,21 @@ public class BotAI : MonoBehaviour
     // Shield
     private float shield = 100;
     private int maxShield = 100;
-    private float shieldChargeRate = 0.5f;
+    private float shieldChargeRate = 0.05f;
     private int shieldChargeDelay = 250;
     private int shieldChargeTimer = 0;
 
     // Shots
     private float shotDamage = 10f;
     private float shotSpeed = 15f;
-    private int shotDelay = 30;
+    private int shotDelay = 40;
     private int shotTimer = 0;
 
-    // Movement
-    private float movementSpeed = 0.05f;
-    private float turnSpeed = 0.05f;
-
+    // Movement and turning
+    private Vector2 force;
+    private float forceScale = 50f;
+    private float turn;
+    private float turnScale = 30f;
 
     // Arena size
     private float halfArenaWidth;
@@ -127,14 +128,24 @@ public class BotAI : MonoBehaviour
 
 
 
-    public float MovementSpeed
+    public Vector2 Force
     {
-        get { return movementSpeed; }
+        get { return force; }
     }
 
-    public float TurnSpeed
+    public float ForceScale
     {
-        get { return turnSpeed; }
+        get { return forceScale; }
+    }
+
+    public float Turn
+    {
+        get { return turn; }
+    }
+
+    public float TurnScale
+    {
+        get { return turnScale; }
     }
 
 
@@ -151,6 +162,30 @@ public class BotAI : MonoBehaviour
 
 
 
+    public float Radius
+    {
+        get { return radius; }
+    }
+
+
+    public float X
+    {
+        get { return transform.position.x; }
+    }
+
+
+    public float Y
+    {
+        get { return transform.position.y; }
+    }
+
+
+    public float Direction
+    {
+        get { return Mathf.Atan2( transform.rotation.y , transform.rotation.x ) * Mathf.Rad2Deg; }
+    }
+
+
     /*************************************************************************/
 
 
@@ -159,7 +194,6 @@ public class BotAI : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         radius  = GetComponent<CircleCollider2D>().radius;
-       // healthBar = transform.FindChild( "Canvas" ).FindChild( "Image" ).GetComponent<Image>();
 
         StatusBar = Instantiate( StatusBar , transform.position + new Vector3( 0 , 0.8f , 0 )  , Quaternion.identity ) as GameObject;
         healthBar = StatusBar.transform.FindChild( "healthBar" ).GetComponent<Image>();
@@ -186,14 +220,13 @@ public class BotAI : MonoBehaviour
             case 11:
                 team = Teams.PURPLE;
                 break;
-
         }
     }
 
 
 
     // Update is called once per frame
-    public void Update()
+    protected void Update()
     {
         if ( shieldChargeTimer <= 0 && shield < maxShield )
         {
@@ -210,6 +243,20 @@ public class BotAI : MonoBehaviour
         shotTimer--;
         shieldChargeTimer--;
     }
+
+
+    protected void FixedUpdate()
+    {
+        Mathf.Clamp( turn , -1f , 1f );
+        transform.Rotate( Vector3.forward * turn * turnScale );
+        turn = 0f;
+
+        force = Vector2.ClampMagnitude( force , 1f );
+        force *= forceScale;
+        rb.AddForce( force );
+        force = new Vector2( 0 , 0 );
+    }
+
 
 
     void LateUpdate()
@@ -271,7 +318,7 @@ public class BotAI : MonoBehaviour
 
 
 
-    public bool Shoot()
+    protected bool Shoot()
     {
         if ( shotTimer <= 0 )
         {
@@ -287,7 +334,7 @@ public class BotAI : MonoBehaviour
     }
 
 
-    public bool Attack( BotAI bot )
+    protected bool Attack( BotAI bot )
     {
         bool success = RotateTowards( bot , 1f );
         Shoot();
@@ -302,33 +349,32 @@ public class BotAI : MonoBehaviour
 
 
 
-    public void RotateLeft( float speed )
+    protected void RotateLeft( float speed )
     {
         Rotate( speed );
     }
 
 
-    public void RotateRight( float speed )
+    protected void RotateRight( float speed )
     {
         Rotate( -speed );
     }
 
 
-    public void Rotate( float speed )
+    protected void Rotate( float speed )
     {
         Mathf.Clamp( speed , -1f , 1f );
-        rb.AddTorque( speed * turnSpeed );
-        //transform.Rotate( Vector3.forward * speed * turnSpeed );
+        turn += speed;
     }
 
 
-    public void RotateBy( float angle , float speed )
+    protected void RotateBy( float angle , float speed )
     {
         //TODO
     }
 
 
-    public bool RotateTowards( BotAI bot , float speed = 1.0f )
+    protected bool RotateTowards( BotAI bot , float speed = 1.0f )
     {
         if ( bot != null )
         {
@@ -342,11 +388,11 @@ public class BotAI : MonoBehaviour
     }
 
 
-    public void RotateTowards( float direction , float speed = 1.0f )
+    protected void RotateTowards( float direction , float speed = 1.0f )
     {
         Mathf.Clamp( speed , -1f , 1f );
         Quaternion q = Quaternion.AngleAxis( direction - 90 , Vector3.forward );
-        transform.rotation = Quaternion.Slerp( transform.rotation , q , speed * turnSpeed );
+        transform.rotation = Quaternion.Slerp( transform.rotation , q , speed * turnScale );
     }
 
 
@@ -356,15 +402,16 @@ public class BotAI : MonoBehaviour
 
 
 
-    public void MoveForward( float speed = 1.0f )
+    protected void MoveForward( float speed = 1.0f )
     {
         Mathf.Clamp( speed , -1f , 1f );
         Vector3 movement = new Vector3( 0 , speed , 0 );
         Move( movement , speed );
     }
 
+    
 
-    public void MoveBackward( float speed = 1.0f )
+    protected void MoveBackward( float speed = 1.0f )
     {
         Mathf.Clamp( speed , -1f , 1f );
         Vector3 movement = new Vector3( 0 , -speed , 0 );
@@ -372,7 +419,7 @@ public class BotAI : MonoBehaviour
     }
 
 
-    public void MoveRight( float speed = 1.0f )
+    protected void MoveRight( float speed = 1.0f )
     {
         Mathf.Clamp( speed , -1f , 1f );
         Vector3 movement = new Vector3( speed , 0 , 0 );
@@ -380,7 +427,7 @@ public class BotAI : MonoBehaviour
     }
 
 
-    public void MoveLeft( float speed = 1.0f )
+    protected void MoveLeft( float speed = 1.0f )
     {
         Mathf.Clamp( speed , -1f , 1f );
         Vector3 movement = new Vector3( -speed , 0 , 0 );
@@ -388,7 +435,7 @@ public class BotAI : MonoBehaviour
     }
 
 
-    public bool MoveToward( BotAI bot , float speed = 1f , float turnSpeed = 1f )
+    protected bool MoveToward( BotAI bot , float speed = 1f , float turnSpeed = 1f )
     {
         bool success = RotateTowards( bot , turnSpeed );
         MoveForward( speed );
@@ -397,7 +444,7 @@ public class BotAI : MonoBehaviour
     }
 
 
-    public void MoveToward( float direction , float speed = 1f , float turnSpeed = 1f )
+    protected void MoveToward( float direction , float speed = 1f , float turnSpeed = 1f )
     {
         //TODO
     }
@@ -405,10 +452,7 @@ public class BotAI : MonoBehaviour
 
     private void Move( Vector3 movement , float speed )
     {
-        movement = transform.rotation * ( movement * speed );
-        rb.AddForce( movement );
-        //movement += transform.position;
-        //transform.position = movement;
+        force += (Vector2) (transform.rotation * ( movement * speed * Time.deltaTime ));
     }
 
 
@@ -417,19 +461,19 @@ public class BotAI : MonoBehaviour
     // FindBots
 
 
-    public BotAI[] FindBots()
+    protected BotAI[] FindBots()
     {
         return GameObject.FindObjectsOfType<BotAI>();
     }
 
 
-    public BotAI[] FindEnemies()
+    protected BotAI[] FindEnemies()
     {
         return FilterEnemies( FindBots() );
     }
 
 
-    public BotAI[] FindAllies()
+    protected BotAI[] FindAllies()
     {
         return FilterAllies( FindBots() );
     }
@@ -441,17 +485,17 @@ public class BotAI : MonoBehaviour
 
     // Closest
 
-    public BotAI FindClosestBot()
+    protected BotAI FindClosestBot()
     {
         return Closest( FindBots() );
     }
 
-    public BotAI FindClosestEnemy()
+    protected BotAI FindClosestEnemy()
     {   
         return Closest( FilterEnemies( FindBots() ) );
     }
 
-    public BotAI FindClosestAlly()
+    protected BotAI FindClosestAlly()
     {
         return Closest( FilterAllies( FindBots() ) );
     }
@@ -460,17 +504,17 @@ public class BotAI : MonoBehaviour
 
     // Furthest
 
-    public BotAI FindFurthestBot()
+    protected BotAI FindFurthestBot()
     {
         return Furthest( FindBots() );
     }
 
-    public BotAI FindFurthestEnemy()
+    protected BotAI FindFurthestEnemy()
     {
         return Furthest( FilterEnemies( FindBots() ) );
     }
 
-    public BotAI FindFurthestAlly()
+    protected BotAI FindFurthestAlly()
     {
         return Furthest( FilterAllies( FindBots() ) );
     }
@@ -479,17 +523,17 @@ public class BotAI : MonoBehaviour
 
     // HighestHealth
 
-    public BotAI FindHighestHealthBot()
+    protected BotAI FindHighestHealthBot()
     {
         return HighestHealth( FindBots() );
     }
 
-    public BotAI FindHighestHealthEnemy()
+    protected BotAI FindHighestHealthEnemy()
     {
         return HighestHealth( FilterEnemies( FindBots() ) );
     }
 
-    public BotAI FindHighestHealthAlly()
+    protected BotAI FindHighestHealthAlly()
     {
         return HighestHealth( FilterAllies( FindBots() ) );
     }
@@ -498,17 +542,17 @@ public class BotAI : MonoBehaviour
 
     // LowestHealth
 
-    public BotAI FindLowestHealthBot()
+    protected BotAI FindLowestHealthBot()
     {
         return LowestHealth( FindBots() );
     }
 
-    public BotAI FindLowestHealthEnemy()
+    protected BotAI FindLowestHealthEnemy()
     {
         return LowestHealth( FilterEnemies( FindBots() ) );
     }
 
-    public BotAI FindLowestHealthAlly()
+    protected BotAI FindLowestHealthAlly()
     {
         return LowestHealth( FilterAllies( FindBots() ) );
     }
@@ -517,17 +561,17 @@ public class BotAI : MonoBehaviour
 
     // HighestShield
 
-    public BotAI FindHighestShieldBot()
+    protected BotAI FindHighestShieldBot()
     {
         return HighestShield( FindBots() );
     }
 
-    public BotAI FindHighestShieldEnemy()
+    protected BotAI FindHighestShieldEnemy()
     {
         return HighestShield( FilterEnemies( FindBots() ) );
     }
 
-    public BotAI FindHighestShieldAlly()
+    protected BotAI FindHighestShieldAlly()
     {
         return HighestShield( FilterAllies( FindBots() ) );
     }
@@ -536,17 +580,17 @@ public class BotAI : MonoBehaviour
 
     // LowestShield
 
-    public BotAI FindLowestShieldBot()
+    protected BotAI FindLowestShieldBot()
     {
         return LowestShield( FindBots() );
     }
 
-    public BotAI FindLowestShieldEnemy()
+    protected BotAI FindLowestShieldEnemy()
     {
         return LowestShield( FilterEnemies( FindBots() ) );
     }
 
-    public BotAI FindLowestShieldAlly()
+    protected BotAI FindLowestShieldAlly()
     {
         return LowestShield( FilterAllies( FindBots() ) );
     }
@@ -555,17 +599,17 @@ public class BotAI : MonoBehaviour
 
     // Strongest
 
-    public BotAI FindStrongestBot()
+    protected BotAI FindStrongestBot()
     {
         return Strongest( FindBots() );
     }
 
-    public BotAI FindStrongestEnemy()
+    protected BotAI FindStrongestEnemy()
     {
         return Strongest( FilterEnemies( FindBots() ) );
     }
 
-    public BotAI FindStrongestAlly()
+    protected BotAI FindStrongestAlly()
     {
         return Strongest( FilterAllies( FindBots() ) );
     }
@@ -574,17 +618,17 @@ public class BotAI : MonoBehaviour
 
     // Weakest
 
-    public BotAI FindWeakestBot()
+    protected BotAI FindWeakestBot()
     {
         return Weakest( FindBots() );
     }
 
-    public BotAI FindWeakestEnemy()
+    protected BotAI FindWeakestEnemy()
     {
         return Weakest( FilterEnemies( FindBots() ) );
     }
 
-    public BotAI FindWeakestAlly()
+    protected BotAI FindWeakestAlly()
     {
         return Weakest( FilterAllies( FindBots() ) );
     }
@@ -596,7 +640,7 @@ public class BotAI : MonoBehaviour
     /*************************************************************************/
 
 
-    public float DistanceToBot( BotAI bot )
+    protected float DistanceToBot( BotAI bot )
     {
         if ( bot == null )
         {

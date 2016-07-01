@@ -4,17 +4,24 @@ using System.Collections;
 
 public class AI_Orange : BotAI
 {
+    // Initialize class variables here
 
-    // Update is called once per frame
-    new void Update()
+
+    // called once per frame
+    // This is will most of the AI logic will go
+    void AI_Routine()
     {
-        base.Update();
 
+        // Example
         BotAI enemy = FindClosestEnemy();
+        AI_Orange ally = (AI_Orange) FindClosestAlly();
 
-        if ( DistanceToBot( enemy ) > 10f )
+    if ( DistanceToBot( enemy ) > 10f )
         {
-            MoveToward( enemy );
+            // MoveToward( enemy );
+            //Rotate( 1f );
+           // enemy.Rotate( 1f );
+            ally.Rotate( 1f );
         }
         else
         {
@@ -22,7 +29,15 @@ public class AI_Orange : BotAI
         }
 
         Shoot();
+        // End Example
+    }
 
 
+
+    // DO NOT MODIFY THIS FUNCTION
+    new void FixedUpdate()
+    {
+        AI_Routine();
+        base.FixedUpdate();
     }
 }
