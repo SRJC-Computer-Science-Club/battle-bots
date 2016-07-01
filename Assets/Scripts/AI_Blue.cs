@@ -1,33 +1,52 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class AI_Blue : BotAI {
+public static class AI_BlueTeamSettings
+{
+    public const string TEAM_NAME = "BLUE";
+    public const string AUTHOR = "";
+    public const string VERSION = "0.0";
+}
 
+
+public class AI_Blue : BotAI
+{
     // Initialize class variables here
 
 
-	// called once per frame
     // This is will most of the AI logic will go
-	void AI_Routine () {
+    // It is called once per frame
+    void AI_Routine()
+    {
 
         // Example
         BotAI enemy = FindWeakestEnemy();
 
         if ( enemy != null )
         {
-            MoveRight( 1.5f );
-            MoveForward( .5f );
+            if ( ID <= 2 )
+            {
+                MoveRight( 1.5f );
+            }
+            else
+            {
+                MoveForward( .5f );
+            }
+
             ShootAt( enemy );
         }
         // End Example
-	}
+    }
 
 
 
     // DO NOT MODIFY THIS FUNCTION
     new void FixedUpdate()
     {
-        AI_Routine();
-        base.FixedUpdate();
+        if ( Game.GameStart )
+        {
+            AI_Routine();
+            base.FixedUpdate();
+        }
     }
 }

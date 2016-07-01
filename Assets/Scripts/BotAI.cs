@@ -37,13 +37,13 @@ public class BotAI : MonoBehaviour
 
     // Shots
     private float shotDamage = 10f;
-    private float shotSpeed = 15f;
+    private float shotSpeed = 20f;
     private float shotDelay = 0.6f;
     private float shotTimer = 0;
 
     // Movement and turning
     private Vector2 force;
-    private float forceScale = 20f;
+    private float forceScale = 30f;
     private float turn;
     private float turnScale = 140f;
 
@@ -113,7 +113,7 @@ public class BotAI : MonoBehaviour
 
     public float ShotSpeed
     {
-        get { return ShotSpeed; }
+        get { return shotSpeed; }
     }
 
     public float ShotDelay
@@ -382,31 +382,31 @@ public class BotAI : MonoBehaviour
 
 
 
-    protected void RotateLeft( float speed )
+    protected void RotateLeft( float turnSpeed )
     {
-        Rotate( speed );
+        Rotate( turnSpeed );
     }
 
 
-    protected void RotateRight( float speed )
+    protected void RotateRight( float turnSpeed )
     {
-        Rotate( -speed );
+        Rotate( -turnSpeed );
     }
 
 
-    protected void Rotate( float speed )
+    protected void Rotate( float turnSpeed )
     {
-        speed =Mathf.Clamp( speed , -1f , 1f );
-        turn += speed;
+        turnSpeed = Mathf.Clamp( turnSpeed , -1f , 1f );
+        turn += turnSpeed;
     }
 
 
-    protected bool RotateTowards( BotAI bot , float speed = 1.0f )
+    protected bool RotateTowards( BotAI bot , float turnSpeed = 1.0f )
     {
         if ( bot != null )
         {
         
-            RotateTowards( bot.transform.position.x , bot.transform.position.y , speed );
+            RotateTowards( bot.transform.position.x , bot.transform.position.y , turnSpeed );
 
             return true;
         }
@@ -415,32 +415,32 @@ public class BotAI : MonoBehaviour
     }
 
 
-    protected void RotateTowards( Vector2 pos , float speed = 1.0f )
+    protected void RotateTowards( Vector2 pos , float turnSpeed = 1.0f )
     {
-        RotateTowards( pos.x , pos.y , speed );
+        RotateTowards( pos.x , pos.y , turnSpeed );
     }
 
 
-    protected void RotateTowards( float x , float y , float speed )
+    protected void RotateTowards( float x , float y , float turnSpeed )
     {
-        RotateTowards( Mathf.Atan2( y - transform.position.y , x - transform.position.x ) * Mathf.Rad2Deg , speed );
+        RotateTowards( Mathf.Atan2( y - transform.position.y , x - transform.position.x ) * Mathf.Rad2Deg , turnSpeed );
     }
 
 
-    protected void RotateTowards( float direction , float speed = 1.0f )
+    protected void RotateTowards( float direction , float turnSpeed = 1.0f )
     {
-        speed = Mathf.Clamp( speed , -1f , 1f );
+        turnSpeed = Mathf.Clamp( turnSpeed , -1f , 1f );
         //Quaternion q = Quaternion.AngleAxis( direction , Vector3.forward );
         //float newdir = Quaternion.Lerp( transform.rotation , q , .001f ).eulerAngles.z;
         //turn += newdir - direction;
         float turnAmount = CalcShortestRot( Direction , direction );
 
-        if ( Mathf.Abs( turnAmount ) < Mathf.Abs( speed * turnScale * Time.deltaTime ) )
+        if ( Mathf.Abs( turnAmount ) < Mathf.Abs( turnSpeed * turnScale * Time.deltaTime ) )
         {
-            speed = turnAmount / ( turnScale * Time.deltaTime ) * Mathf.Sign( speed );
+            turnSpeed = turnAmount / ( turnScale * Time.deltaTime ) * Mathf.Sign( turnSpeed );
         }
 
-        turn += speed * Mathf.Sign( turnAmount );
+        turn += turnSpeed * Mathf.Sign( turnAmount );
 
     }
 
@@ -927,12 +927,9 @@ public class BotAI : MonoBehaviour
 
 
 
-    // If the return value is positive, then rotate to the left. Else,
-    // rotate to the right.
     private float CalcShortestRot( float from , float to )
     {
-        // If from or to is a negative, we have to recalculate them.
-        // For an example, if from = -45 then from(-45) + 360 = 315.
+
         if ( from < 0 )
         {
             from += 360;
@@ -943,7 +940,7 @@ public class BotAI : MonoBehaviour
             to += 360;
         }
 
-        // Do not rotate if from == to.
+
         if ( from == to ||
            from == 0 && to == 360 ||
            from == 360 && to == 0 )
@@ -951,10 +948,10 @@ public class BotAI : MonoBehaviour
             return 0;
         }
 
-        // Pre-calculate left and right.
+
         float left = ( 360 - from ) + to;
         float right = from - to;
-        // If from < to, re-calculate left and right.
+
         if ( from < to )
         {
             if ( to > 0 )
@@ -969,21 +966,17 @@ public class BotAI : MonoBehaviour
             }
         }
 
-        // Determine the shortest direction.
         return ( ( left <= right ) ? left : ( right * -1 ) );
     }
 
-    // Call CalcShortestRot and check its return value.
-    // If CalcShortestRot returns a positive value, then this function
-    // will return true for left. Else, false for right.
+
     private bool CalcShortestRotDirection( float from , float to )
     {
-        // If the value is positive, return true (left).
         if ( CalcShortestRot( from , to ) >= 0 )
         {
             return true;
         }
-        return false; // right
+        return false; 
     }
 }
 

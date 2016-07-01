@@ -1,24 +1,53 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+public static class AI_OrangeTeamSettings
+{
+    public const string TEAM_NAME = "ORANGE";
+    public const string AUTHOR = "";
+    public const string VERSION = "0.0";
+}
+
 
 public class AI_Orange : BotAI
 {
     // Initialize class variables here
 
 
-    // called once per frame
     // This is will most of the AI logic will go
+    // It is called once per frame
     void AI_Routine()
     {
 
         // Example
         BotAI enemy = FindClosestEnemy();
-        //AI_Orange ally = (AI_Orange) FindClosestAlly();
+        AI_Orange ally = ( AI_Orange ) FindClosestAlly();
 
-        //Rotate(1);
-        Shoot();
-        //MoveToward( enemy , -1f );
+        if ( enemy != null )
+        {
+            if ( DistanceToBot( enemy ) > 10f )
+            {
+                MoveToward( enemy , .6f );
+
+                if ( DistanceToBot( ally ) < 5f )
+                {
+                    if ( ID <= 1 )
+                    {
+                        MoveRight( .4f );
+                    }
+                    else
+                    {
+                        MoveLeft( .4f );
+                    }
+                }
+            }
+            else
+            {
+                MoveToward( enemy , -1f );
+            }
+
+            Shoot();
+        }
         // End Example
     }
 
@@ -27,7 +56,10 @@ public class AI_Orange : BotAI
     // DO NOT MODIFY THIS FUNCTION
     new void FixedUpdate()
     {
-        AI_Routine();
-        base.FixedUpdate();
+        if ( Game.GameStart )
+        {
+            AI_Routine();
+            base.FixedUpdate();
+        }
     }
 }
