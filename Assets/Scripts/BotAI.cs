@@ -31,21 +31,21 @@ public class BotAI : MonoBehaviour
     // Shield
     private float shield = 100;
     private int maxShield = 100;
-    private float shieldChargeRate = 0.05f;
-    private int shieldChargeDelay = 250;
-    private int shieldChargeTimer = 0;
+    private float shieldChargeRate = 15f;
+    private float shieldChargeDelay = 5f;
+    private float shieldChargeTimer = 0;
 
     // Shots
     private float shotDamage = 10f;
     private float shotSpeed = 15f;
-    private int shotDelay = 40;
-    private int shotTimer = 0;
+    private float shotDelay = 0.6f;
+    private float shotTimer = 0;
 
     // Movement and turning
     private Vector2 force;
-    private float forceScale = 50f;
+    private float forceScale = 20f;
     private float turn;
-    private float turnScale = 30f;
+    private float turnScale = 140f;
 
     // Arena size
     private float halfArenaWidth;
@@ -94,12 +94,12 @@ public class BotAI : MonoBehaviour
         get { return shieldChargeRate; }
     }
 
-    public int ShieldChargeDelay
+    public float ShieldChargeDelay
     {
         get { return shieldChargeDelay; }
     }
 
-    public int ShieldChargeTimer
+    public float ShieldChargeTimer
     {
         get { return shieldChargeTimer; }
     }
@@ -116,12 +116,12 @@ public class BotAI : MonoBehaviour
         get { return ShotSpeed; }
     }
 
-    public int ShotDelay
+    public float ShotDelay
     {
         get { return shotDelay; }
     }
 
-    public int ShotTimer
+    public float ShotTimer
     {
         get { return shotTimer; }
     }
@@ -168,21 +168,30 @@ public class BotAI : MonoBehaviour
     }
 
 
+
     public float X
     {
         get { return transform.position.x; }
     }
-
 
     public float Y
     {
         get { return transform.position.y; }
     }
 
+    public Vector2 Position
+    {
+        get { return new Vector2( transform.position.x , transform.position.y ); }
+    }
+
+    public Vector2 Velocity
+    {
+        get { return rb.velocity; }
+    }
 
     public float Direction
     {
-        get { return Mathf.Atan2( transform.rotation.y , transform.rotation.x ) * Mathf.Rad2Deg; }
+        get { return transform.rotation.eulerAngles.z; }
     }
 
 
@@ -193,9 +202,9 @@ public class BotAI : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
-        radius  = GetComponent<CircleCollider2D>().radius;
+        radius = GetComponent<CircleCollider2D>().radius;
 
-        StatusBar = Instantiate( StatusBar , transform.position + new Vector3( 0 , 0.8f , 0 )  , Quaternion.identity ) as GameObject;
+        StatusBar = Instantiate( StatusBar , transform.position + new Vector3( 0 , 0.8f , 0 ) , Quaternion.identity ) as GameObject;
         healthBar = StatusBar.transform.FindChild( "healthBar" ).GetComponent<Image>();
         shieldBar = StatusBar.transform.FindChild( "shieldBar" ).GetComponent<Image>();
 
@@ -205,8 +214,7 @@ public class BotAI : MonoBehaviour
         arenaWidth = 2 * halfArenaWidth;
         arenaHeight = 2 * halfArenaHeight;
 
-
-        switch( gameObject.layer )
+        switch ( gameObject.layer )
         {
             case 8:
                 team = Teams.BLUE;
@@ -228,9 +236,44 @@ public class BotAI : MonoBehaviour
     // Update is called once per frame
     protected void Update()
     {
+
+    }
+
+
+    protected void FixedUpdate()
+    {
+        turn = Mathf.Clamp( turn , -1f , 1f );
+        transform.Rotate( Vector3.forward * turn * turnScale * Time.deltaTime );
+        turn = 0f;
+
+
+
+
+        force = Vector2.ClampMagnitude( force , 1f );
+
+        shotTimer -= Time.deltaTime * ( 1f + ( 1f - force.magnitude ) / 3f );
+        shieldChargeTimer -= Time.deltaTime;
+
+
+        force *= forceScale * Time.deltaTime;
+        rb.AddForce( force );
+        force = new Vector2( 0 , 0 );
+
+
+
+        Vector3 pos = transform.position;
+
+        pos.x = Mathf.Clamp( pos.x , -halfArenaWidth , halfArenaWidth );
+        pos.y = Mathf.Clamp( pos.y , -halfArenaHeight , halfArenaHeight );
+
+        transform.position = pos;
+        StatusBar.transform.position = pos + new Vector3( 0 , 0.8f , 0 );
+
+
+
         if ( shieldChargeTimer <= 0 && shield < maxShield )
         {
-            shield += shieldChargeRate;
+            shield += shieldChargeRate * Time.deltaTime;
 
             if ( shield > maxShield )
             {
@@ -239,36 +282,8 @@ public class BotAI : MonoBehaviour
 
             shieldBar.fillAmount = shield / maxShield;
         }
-        
-        shotTimer--;
-        shieldChargeTimer--;
     }
 
-
-    protected void FixedUpdate()
-    {
-        Mathf.Clamp( turn , -1f , 1f );
-        transform.Rotate( Vector3.forward * turn * turnScale );
-        turn = 0f;
-
-        force = Vector2.ClampMagnitude( force , 1f );
-        force *= forceScale;
-        rb.AddForce( force );
-        force = new Vector2( 0 , 0 );
-    }
-
-
-
-    void LateUpdate()
-    {
-        Vector3 pos = transform.position;
-
-        pos.x = Mathf.Clamp( pos.x , -halfArenaWidth, halfArenaWidth );
-        pos.y = Mathf.Clamp( pos.y , -halfArenaHeight , halfArenaHeight );
-
-        transform.position = pos;
-        StatusBar.transform.position = pos + new Vector3( 0 , 0.8f , 0 );
-    }
 
 
     /*************************************************************************/
@@ -322,7 +337,7 @@ public class BotAI : MonoBehaviour
     {
         if ( shotTimer <= 0 )
         {
-            GameObject bullet = Instantiate( LaserBullet , transform.position + ( transform.rotation * new Vector3( 0 , 0.4f , 0 ) ) , transform.rotation ) as GameObject;
+            GameObject bullet = Instantiate( LaserBullet , transform.position + ( transform.rotation * new Vector3( 0.4f , 0     , 0 ) ) , transform.rotation ) as GameObject;
             bullet.GetComponent<BulletBehavior>().Init( team , shotDamage , shotSpeed );
             shotTimer = shotDelay;
             return true;
@@ -334,13 +349,31 @@ public class BotAI : MonoBehaviour
     }
 
 
-    protected bool Attack( BotAI bot )
+    protected bool ShootAt( BotAI bot , float rotationSpeed = 1f )
     {
-        bool success = RotateTowards( bot , 1f );
-        Shoot();
+        if ( bot == null )
+        {
+            return false;
+        }
 
-        return success;
+        ShootAt( bot.X , bot.Y , rotationSpeed );
+
+        return true;
     }
+
+
+    protected void ShootAt( Vector2 pos , float rotationSpeed = 1f )
+    {
+        ShootAt( pos.x , pos.y , rotationSpeed );
+    }
+
+
+    protected void ShootAt( float x , float y , float rotationSpeed = 1f )
+    {
+        RotateTowards( x , y , 1f );
+        Shoot();
+    }
+
 
 
 
@@ -363,14 +396,8 @@ public class BotAI : MonoBehaviour
 
     protected void Rotate( float speed )
     {
-        Mathf.Clamp( speed , -1f , 1f );
+        speed =Mathf.Clamp( speed , -1f , 1f );
         turn += speed;
-    }
-
-
-    protected void RotateBy( float angle , float speed )
-    {
-        //TODO
     }
 
 
@@ -378,8 +405,8 @@ public class BotAI : MonoBehaviour
     {
         if ( bot != null )
         {
-            Vector3 vectorToTarget = bot.transform.position - transform.position;
-            RotateTowards( Mathf.Atan2( vectorToTarget.y , vectorToTarget.x ) * Mathf.Rad2Deg , speed );
+        
+            RotateTowards( bot.transform.position.x , bot.transform.position.y , speed );
 
             return true;
         }
@@ -388,13 +415,34 @@ public class BotAI : MonoBehaviour
     }
 
 
-    protected void RotateTowards( float direction , float speed = 1.0f )
+    protected void RotateTowards( Vector2 pos , float speed = 1.0f )
     {
-        Mathf.Clamp( speed , -1f , 1f );
-        Quaternion q = Quaternion.AngleAxis( direction - 90 , Vector3.forward );
-        transform.rotation = Quaternion.Slerp( transform.rotation , q , speed * turnScale );
+        RotateTowards( pos.x , pos.y , speed );
     }
 
+
+    protected void RotateTowards( float x , float y , float speed )
+    {
+        RotateTowards( Mathf.Atan2( y - transform.position.y , x - transform.position.x ) * Mathf.Rad2Deg , speed );
+    }
+
+
+    protected void RotateTowards( float direction , float speed = 1.0f )
+    {
+        speed = Mathf.Clamp( speed , -1f , 1f );
+        //Quaternion q = Quaternion.AngleAxis( direction , Vector3.forward );
+        //float newdir = Quaternion.Lerp( transform.rotation , q , .001f ).eulerAngles.z;
+        //turn += newdir - direction;
+        float turnAmount = CalcShortestRot( Direction , direction );
+
+        if ( Mathf.Abs( turnAmount ) < Mathf.Abs( speed * turnScale * Time.deltaTime ) )
+        {
+            speed = turnAmount / ( turnScale * Time.deltaTime ) * Mathf.Sign( speed );
+        }
+
+        turn += speed * Mathf.Sign( turnAmount );
+
+    }
 
 
     /*************************************************************************/
@@ -404,33 +452,29 @@ public class BotAI : MonoBehaviour
 
     protected void MoveForward( float speed = 1.0f )
     {
-        Mathf.Clamp( speed , -1f , 1f );
-        Vector3 movement = new Vector3( 0 , speed , 0 );
+        Vector3 movement = Vector3.right;
         Move( movement , speed );
     }
 
-    
+
 
     protected void MoveBackward( float speed = 1.0f )
     {
-        Mathf.Clamp( speed , -1f , 1f );
-        Vector3 movement = new Vector3( 0 , -speed , 0 );
+        Vector3 movement = Vector3.left;
         Move( movement , speed );
     }
 
 
     protected void MoveRight( float speed = 1.0f )
     {
-        Mathf.Clamp( speed , -1f , 1f );
-        Vector3 movement = new Vector3( speed , 0 , 0 );
+        Vector3 movement = Vector3.down;
         Move( movement , speed );
     }
 
 
     protected void MoveLeft( float speed = 1.0f )
     {
-        Mathf.Clamp( speed , -1f , 1f );
-        Vector3 movement = new Vector3( -speed , 0 , 0 );
+        Vector3 movement = Vector3.up;
         Move( movement , speed );
     }
 
@@ -446,13 +490,28 @@ public class BotAI : MonoBehaviour
 
     protected void MoveToward( float direction , float speed = 1f , float turnSpeed = 1f )
     {
-        //TODO
+        RotateTowards( direction , turnSpeed );
+        MoveForward( speed );
+    }
+
+
+    protected void MoveToward( Vector2 pos , float speed = 1f , float turnSpeed = 1f )
+    {
+        RotateTowards( pos , turnSpeed );
+        MoveForward( speed );
+    }
+
+
+    protected void MoveToward( float x , float y , float speed , float turnSpeed )
+    {
+        RotateTowards( x , y , turnSpeed );
+        MoveForward( speed );
     }
 
 
     private void Move( Vector3 movement , float speed )
     {
-        force += (Vector2) (transform.rotation * ( movement * speed * Time.deltaTime ));
+        force += ( Vector2 ) ( transform.rotation * ( movement * speed ) );
     }
 
 
@@ -491,7 +550,7 @@ public class BotAI : MonoBehaviour
     }
 
     protected BotAI FindClosestEnemy()
-    {   
+    {
         return Closest( FilterEnemies( FindBots() ) );
     }
 
@@ -865,4 +924,68 @@ public class BotAI : MonoBehaviour
         return weakest;
     }
 
+
+
+
+    // If the return value is positive, then rotate to the left. Else,
+    // rotate to the right.
+    private float CalcShortestRot( float from , float to )
+    {
+        // If from or to is a negative, we have to recalculate them.
+        // For an example, if from = -45 then from(-45) + 360 = 315.
+        if ( from < 0 )
+        {
+            from += 360;
+        }
+
+        if ( to < 0 )
+        {
+            to += 360;
+        }
+
+        // Do not rotate if from == to.
+        if ( from == to ||
+           from == 0 && to == 360 ||
+           from == 360 && to == 0 )
+        {
+            return 0;
+        }
+
+        // Pre-calculate left and right.
+        float left = ( 360 - from ) + to;
+        float right = from - to;
+        // If from < to, re-calculate left and right.
+        if ( from < to )
+        {
+            if ( to > 0 )
+            {
+                left = to - from;
+                right = ( 360 - to ) + from;
+            }
+            else
+            {
+                left = ( 360 - to ) + from;
+                right = to - from;
+            }
+        }
+
+        // Determine the shortest direction.
+        return ( ( left <= right ) ? left : ( right * -1 ) );
+    }
+
+    // Call CalcShortestRot and check its return value.
+    // If CalcShortestRot returns a positive value, then this function
+    // will return true for left. Else, false for right.
+    private bool CalcShortestRotDirection( float from , float to )
+    {
+        // If the value is positive, return true (left).
+        if ( CalcShortestRot( from , to ) >= 0 )
+        {
+            return true;
+        }
+        return false; // right
+    }
 }
+
+
+

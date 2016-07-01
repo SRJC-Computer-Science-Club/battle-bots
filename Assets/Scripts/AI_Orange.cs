@@ -14,21 +14,11 @@ public class AI_Orange : BotAI
 
         // Example
         BotAI enemy = FindClosestEnemy();
-        AI_Orange ally = (AI_Orange) FindClosestAlly();
+        //AI_Orange ally = (AI_Orange) FindClosestAlly();
 
-    if ( DistanceToBot( enemy ) > 10f )
-        {
-            // MoveToward( enemy );
-            //Rotate( 1f );
-           // enemy.Rotate( 1f );
-            ally.Rotate( 1f );
-        }
-        else
-        {
-            MoveBackward();
-        }
-
+        //Rotate(1);
         Shoot();
+        //MoveToward( enemy , -1f );
         // End Example
     }
 

@@ -15,8 +15,9 @@ public class AI_Blue : BotAI {
 
         if ( enemy != null )
         {
-            MoveRight( 1f );
-            Attack( enemy );
+            MoveRight( 1.5f );
+            MoveForward( .5f );
+            ShootAt( enemy );
         }
         // End Example
 	}

@@ -14,10 +14,12 @@ public class BulletBehavior : MonoBehaviour {
     private float speed;
 
     private float damage;
+    private float startDamage;
 
     private bool init = false;
 
-    private int lifeTime = 500;
+    private float lifeTime = 0;
+    private float maxLifeTime = 10f;
 
     private Teams team;
 
@@ -25,6 +27,11 @@ public class BulletBehavior : MonoBehaviour {
     public float Damage
     {
         get { return damage; }
+    }
+
+    public float StartDamage
+    {
+        get { return startDamage; }
     }
 
     public float Speed
@@ -67,11 +74,12 @@ public class BulletBehavior : MonoBehaviour {
 
             init = true;
             this.team = team;
+            this.startDamage = damage;
             this.damage = damage;
             this.speed = speed;
 
             rb = GetComponent<Rigidbody2D>();
-            rb.velocity = transform.rotation * new Vector3( 0 , speed , 0 );
+            rb.velocity = transform.rotation * new Vector3( speed , 0 , 0 );
         }
     }
 
@@ -82,10 +90,10 @@ public class BulletBehavior : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        damage *= 0.995f;
-        lifeTime--;
+        lifeTime += Time.deltaTime;
+        damage = Mathf.Pow( .707f , lifeTime ) * startDamage;
 
-        if ( lifeTime <= 0 )
+        if ( lifeTime >= maxLifeTime )
         {
             Destroy( gameObject );
         }
