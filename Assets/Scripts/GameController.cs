@@ -26,22 +26,30 @@ public class GameController : MonoBehaviour
 {
     public Text text;
 
-    public float countDown = 6f;
+    public float countDown = 4f;
 
     void Start()
     {
         text = GetComponent<Text>();
         text.text = AI_BlueTeamSettings.TEAM_NAME + " VS " + AI_OrangeTeamSettings.TEAM_NAME;
+
+        
     }
 
     void Update()
     {
         countDown -= Time.deltaTime;
 
+        string minutes = Mathf.Floor( -countDown / 60 ).ToString( "00" );
+        string seconds = Mathf.Floor( -countDown % 60 ).ToString( "00" );
+        string hundreds = Mathf.Floor( -countDown * 100 % 100 ).ToString( "00" );
+
         if ( countDown <= 0f )
         {
             Game.StartGame();
-            Destroy(gameObject);
+            text.rectTransform.position = new Vector3( 0 , 19f , 0 );
+            text.fontSize = 18;
+            text.text = minutes + ":" + seconds + "." + hundreds;
         }
         else if( countDown <= 1f )
         {
