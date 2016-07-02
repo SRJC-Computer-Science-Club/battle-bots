@@ -3,7 +3,7 @@ using System.Collections;
 
 public static class AI_BlueTeamSettings
 {
-    public const string TEAM_NAME = "BLUE";
+    public const string TEAM_NAME = "BLUE"; // Be sure to five your AI a name
     public const string AUTHOR = "";
     public const string VERSION = "0.0";
 }

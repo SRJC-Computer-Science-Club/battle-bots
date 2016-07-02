@@ -3,7 +3,7 @@ using System.Collections;
 
 public static class AI_OrangeTeamSettings
 {
-    public const string TEAM_NAME = "ORANGE";
+    public const string TEAM_NAME = "ORANGE"; // Be sure to five your AI a name
     public const string AUTHOR = "";
     public const string VERSION = "0.0";
 }
