@@ -40,6 +40,10 @@ or
 
 Each file represents the AI for the corresponding team
 
+##### Submitting the AI
+* **option1** *(preferred):* Create a new branch named "yourname_AI", push to github. Then send me message telling me the name of your branch *and* which team color I should use. 
+* **option2:** send me the file contents of AI_Blue or AI_Orange on slack
+
 
 ###### Some things to note:
 * A maximum of 1.0 unit of movement can be applied per frame
