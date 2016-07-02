@@ -243,7 +243,7 @@ public class BotAI : MonoBehaviour
     protected void FixedUpdate()
     {
         turn = Mathf.Clamp( turn , -1f , 1f );
-        transform.Rotate( Vector3.forward * turn * turnScale * Time.deltaTime );
+        transform.Rotate( Vector3.forward * turn * turnScale * Time.fixedDeltaTime );
         turn = 0f;
 
 
@@ -251,11 +251,11 @@ public class BotAI : MonoBehaviour
 
         force = Vector2.ClampMagnitude( force , 1f );
 
-        shotTimer -= Time.deltaTime * ( 1f + ( 1f - force.magnitude ) / 3f );
-        shieldChargeTimer -= Time.deltaTime;
+        shotTimer -= Time.fixedDeltaTime * ( 1f + ( 1f - force.magnitude ) / 3f );
+        shieldChargeTimer -= Time.fixedDeltaTime;
 
 
-        force *= forceScale * Time.deltaTime;
+        force *= forceScale * Time.fixedDeltaTime;
         rb.AddForce( force );
         force = new Vector2( 0 , 0 );
 
@@ -273,7 +273,7 @@ public class BotAI : MonoBehaviour
 
         if ( shieldChargeTimer <= 0 && shield < maxShield )
         {
-            shield += shieldChargeRate * Time.deltaTime;
+            shield += shieldChargeRate * Time.fixedDeltaTime;
 
             if ( shield > maxShield )
             {
@@ -337,7 +337,7 @@ public class BotAI : MonoBehaviour
     {
         if ( shotTimer <= 0 )
         {
-            GameObject bullet = Instantiate( LaserBullet , transform.position + ( transform.rotation * new Vector3( 0.4f , 0     , 0 ) ) , transform.rotation ) as GameObject;
+            GameObject bullet = Instantiate( LaserBullet , transform.position + ( transform.rotation * new Vector3( 0.4f , 0 , 0 ) ) , transform.rotation ) as GameObject;
             bullet.GetComponent<BulletBehavior>().Init( team , shotDamage , shotSpeed );
             shotTimer = shotDelay;
             return true;
@@ -435,13 +435,14 @@ public class BotAI : MonoBehaviour
         //turn += newdir - direction;
         float turnAmount = CalcShortestRot( Direction , direction );
 
-        if ( Mathf.Abs( turnAmount ) < Mathf.Abs( turnSpeed * turnScale * Time.deltaTime ) )
+        if ( Mathf.Abs( turnAmount ) < Mathf.Abs( turnSpeed * turnScale * Time.fixedDeltaTime ) )
         {
-            turnSpeed = turnAmount / ( turnScale * Time.deltaTime ) * Mathf.Sign( turnSpeed );
+            turn += turnAmount / ( turnScale * Time.deltaTime ) * Mathf.Sign( turnSpeed );
         }
-
-        turn += turnSpeed * Mathf.Sign( turnAmount );
-
+        else
+        {
+            turn += turnSpeed * Mathf.Sign( turnAmount );
+        }
     }
 
 
