@@ -47,6 +47,11 @@ public class AI_Blue : BotAI
         {
             AI_Routine();
             base.FixedUpdate();
+
+            if ( FindEnemies().Length == 0 )
+            {
+                Game.EndGame( AI_BlueTeamSettings.TEAM_NAME );
+            }
         }
     }
 }

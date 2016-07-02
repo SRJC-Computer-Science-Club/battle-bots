@@ -60,6 +60,11 @@ public class AI_Orange : BotAI
         {
             AI_Routine();
             base.FixedUpdate();
+
+            if ( FindEnemies().Length == 0 )
+            {
+                Game.EndGame( AI_OrangeTeamSettings.TEAM_NAME );
+            }
         }
     }
 }

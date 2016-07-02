@@ -6,6 +6,8 @@ using UnityEngine.UI;
 
 public static class Game {
     private static bool gameStart = false;
+    private static string winner;
+    private static bool gameOver = false;
 
     public static bool GameStart
     {
@@ -15,9 +17,32 @@ public static class Game {
         }
     }
 
+    public static bool GameOver
+    {
+        get
+        {
+            return gameOver;
+        }
+    }
+
+
+    public static string Winner
+    {
+        get
+        {
+            return winner;
+        }
+    }
+
     public static void StartGame()
     {
         gameStart = true;
+    }
+
+    public static void EndGame( string win )
+    {
+        gameOver = true;
+        winner = win;
     }
 }
 
@@ -62,6 +87,14 @@ public class GameController : MonoBehaviour
         else if ( countDown <= 3f )
         {
             text.text = "3";
+        }
+
+        if ( Game.GameOver )
+        {
+            text.rectTransform.position = new Vector3( 0 , 0 , 0 );
+            text.fontSize = 32;
+            text.text = "Winner: " + Game.Winner + "!\n" + minutes + ":" + seconds + "." + hundreds; ;
+            Time.timeScale = 0;
         }
     }
 }
