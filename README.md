@@ -21,11 +21,14 @@ A live Demo of the project can be seen [here](http://srjcscheduler.com/BattleBot
 ### Getting Started
 
 [Unity Tutorial](https://www.youtube.com/playlist?list=PLbghT7MmckI4IeNHkPm5bFJhY9GQ0anKN)
-*(I had actually downloaded the [spaceship sprites](http://kenney.nl/assets/space-shooter-redux) before I saw the tutorial)*
+*(I had actually found the [spaceship sprites](http://kenney.nl/assets/space-shooter-redux) before I saw the tutorial =) )*
 
 [Unity Manual](https://docs.unity3d.com/Manual/index.html)
 
 [Unity Scripting Reference](https://docs.unity3d.com/ScriptReference/index.html)
+
+
+Be sure to clone the Repo and open the Unity project to get started
 
 
 ### Building the AI
@@ -38,12 +41,23 @@ or
 Each file represents the AI for the corresponding team
 
 
-##### The Manual
+###### Some things to note:
+* A maximum of 1.0 unit of movement can be applied per frame
+* A maximum of 1.0 unit of rotation can be applied per frame
+* Bullets lose damage over time (Damage halved every 2 seconds (exponential decay))
+* Fire rate is decreased linearly with the ship's speed (25% slower fire rate at 100% movement speed)
+* ID can be used to give bots unique behaviors
+
+
+
+#### The Manual
 
 ###### Variables
 *These are read only*
 
 ``` c++
+int ID
+
 float Health
 int MaxHealth
 
@@ -58,8 +72,21 @@ float ShotSpeed
 int ShotDelay
 int ShotTimer
 
-float MovementSpeed
-float TurnSpeed
+Vector2 Force
+float ForceScale
+float Turn
+float TurnScale
+
+float ArenaWidth
+float ArenaHeight
+
+float Radius
+
+float X
+float Y
+Vector2 Position
+Vector2 Velocity
+float Direction
 ```
 
 ###### Functions
@@ -68,8 +95,12 @@ bool Shoot();
 // Fires in the current direction, 'ShotDelay' is the number of frames between shots
 // Returns true if bullet was fired that frame, false otherwise
 
-bool Attack( BotAI bot ); 
+bool ShootAt( BotAI bot , float rotationSpeed = 1f );
 // Will turn towards 'bot' and Shoot, returns false if bot does not exist, true otherwise
+
+void ShootAt( Vector2 pos , float rotationSpeed = 1f );
+
+void ShootAt( float x , float y , float rotationSpeed = 1f );
 
 float DistanceToBot( BotAI bot ); 
 // Returns the distance to 'bot'
@@ -93,6 +124,10 @@ bool RotateTowards( BotAI bot , float speed = 1.0f );
 void RotateTowards( float direction , float speed = 1.0f );
 // Rotates the ship to match the given 'direction', 0° is to the right and goes CCW
 
+void RotateTowards( float x , float y , float turnSpeed );
+
+RotateTowards( Vector2 pos , float turnSpeed = 1.0f );
+
 void MoveForward( float speed = 1.0f );
 // Using a negative 'speed' as the same as using MoveBackward with positive 'speed'
 
@@ -105,8 +140,21 @@ void MoveLeft( float speed = 1.0f );
 bool MoveToward( BotAI bot , float speed = 1f , float turnSpeed = 1f ); 
 // Turns towards and moves towards 'bot'. Returns false if bot does not exist, true otherwise
 
-void MoveToward( float direction , float speed = 1f , float turnSpeed = 1f ); 
-// NOT IMPLEMENTED
+void MoveToward( float direction , float speed = 1f , float turnSpeed = 1f );
+
+void MoveToward( Vector2 pos , float speed = 1f , float turnSpeed = 1f );
+
+void MoveToward( float x , float y , float speed , float turnSpeed );
+
+
+BotAI[] FindBots();
+// Returns an array of all bots
+
+BotAI[] FindEnemies();
+// Returns an array of all enemies
+
+BotAI[] FindAllies();
+// Returns an array of all allies
 
 
 // Any of the following superlatives can be used in place of "Superlative" for the 3 functions below
@@ -139,35 +187,78 @@ A simple AI file will look like this
 using UnityEngine;
 using System.Collections;
 
-public class AI_Blue : BotAI {
+public static class AI_BlueTeamSettings
+{
+    public const string TEAM_NAME = "BLUE"; // Be sure to five your AI a name
+    public const string AUTHOR = "";
+    public const string VERSION = "0.0";
+}
 
+
+public class AI_Blue : BotAI
+{
     // Initialize class variables here
 
 
-	// Update is called once per frame
     // This is will most of the AI logic will go
-	void FixedUpdate () {
+    // It is called once per frame
+    void AI_Routine()
+    {
 
         // Example
         BotAI enemy = FindWeakestEnemy();
 
         if ( enemy != null )
         {
-            MoveRight( .5f );
-            Attack( enemy );
+            if ( ID <= 2 )
+            {
+                MoveRight( 1.5f );
+            }
+            else
+            {
+                MoveForward( .5f );
+            }
+
+            ShootAt( enemy );
         }
         // End Example
-        
-	}
+    }
+
+
+
+    // DO NOT MODIFY THIS FUNCTION
+    new void FixedUpdate()
+    {
+        if ( Game.GameStart )
+        {
+            AI_Routine();
+            base.FixedUpdate();
+        }
+    }
 }
 ```
+
+
+
+##### Submitting the AI
+* **option1** *(preferred):* Create a new branch named "yourname_AI", push to github. Then send me message telling me the name of your branch *and* which team color I should use. 
+* **option2:** send me the file contents of AI_Blue or AI_Orange on slack
+* 
+
+
 ### Roadmap
 
 **v1.0**
-* Add Bot ID's
-* Fix movement
-* Add UI
+* ~~Add Bot ID's~~
+* ~~Fix movement~~
+* ~~Add UI~~
 * Load AI Dynamically
-* Provide access to arena size
-* Provide access to getBots/Enemies/Allies
-* Balance Bot paramters
+* ~~Provide access to arena size~~
+* ~~Provide access to getBots/Enemies/Allies~~
+* ~~Balance Bot paramters~~
+ 
+
+**v1.1**
+* Add powerups
+* Improve UI
+* Add second type of ship
