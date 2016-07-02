@@ -714,6 +714,20 @@ public class BotAI : MonoBehaviour
 
 
 
+    protected float DirectionToBot( BotAI bot )
+    {
+        if ( bot == null )
+        {
+            return float.PositiveInfinity;
+        }
+        else
+        {
+            return Mathf.Atan2( bot.Y - transform.position.y , bot.X - transform.position.x ) * Mathf.Rad2Deg;
+        }
+    }
+
+
+
     /*************************************************************************/
     // Helpers
 

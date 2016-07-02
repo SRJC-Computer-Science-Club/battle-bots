@@ -108,6 +108,10 @@ float DistanceToBot( BotAI bot );
 // Returns the distance to 'bot'
 // Returns INF if 'bot' does not exist
 
+float DirectionToBot( BotAI bot ); 
+// Returns the direction in degree to 'bot'
+// Returns INF if 'bot' does not exist
+
 // For the following rotate and move functions 'speed' should be given in the range of -1.0f to 1.0f
 
 void RotateLeft( float speed ); 
