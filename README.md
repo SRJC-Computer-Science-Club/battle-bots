@@ -30,6 +30,8 @@ A live Demo of the project can be seen [here](http://srjcscheduler.com/BattleBot
 
 Be sure to clone the Repo and open the Unity project to get started
 
+When you get the project open, be sure to click on "Scene1" in the projects tab at the bottom
+
 
 ### Building the AI
 
