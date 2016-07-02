@@ -46,6 +46,7 @@ Each file represents the AI for the corresponding team
 * A maximum of 1.0 unit of rotation can be applied per frame
 * Bullets lose damage over time (Damage halved every 2 seconds (exponential decay))
 * Fire rate is decreased linearly with the ship's speed (25% slower fire rate at 100% movement speed)
+* ID can be used to give bots unique behaviors
 
 
 
