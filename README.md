@@ -21,7 +21,7 @@ A live Demo of the project can be seen [here](http://srjcscheduler.com/BattleBot
 ### Getting Started
 
 [Unity Tutorial](https://www.youtube.com/playlist?list=PLbghT7MmckI4IeNHkPm5bFJhY9GQ0anKN)
-*(I had actually downloaded the [spaceship sprites](http://kenney.nl/assets/space-shooter-redux) before I saw the tutorial)*
+*(I had actually found the [spaceship sprites](http://kenney.nl/assets/space-shooter-redux) before I saw the tutorial =) )*
 
 [Unity Manual](https://docs.unity3d.com/Manual/index.html)
 
@@ -39,10 +39,6 @@ or
 **/Assets/Scripts/AI_Orange.cs**
 
 Each file represents the AI for the corresponding team
-
-##### Submitting the AI
-* **option1** *(preferred):* Create a new branch named "yourname_AI", push to github. Then send me message telling me the name of your branch *and* which team color I should use. 
-* **option2:** send me the file contents of AI_Blue or AI_Orange on slack
 
 
 ###### Some things to note:
@@ -240,6 +236,15 @@ public class AI_Blue : BotAI
     }
 }
 ```
+
+
+
+##### Submitting the AI
+* **option1** *(preferred):* Create a new branch named "yourname_AI", push to github. Then send me message telling me the name of your branch *and* which team color I should use. 
+* **option2:** send me the file contents of AI_Blue or AI_Orange on slack
+* 
+
+
 ### Roadmap
 
 **v1.0**
