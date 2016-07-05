@@ -263,6 +263,17 @@ public class BotAI : MonoBehaviour
 
         Vector3 pos = transform.position;
 
+        if ( pos.x < -halfArenaWidth || pos.x > halfArenaWidth )
+        {
+            rb.velocity = new Vector2( 0 , rb.velocity.y );
+        }
+
+
+        if ( pos.y < -halfArenaHeight || pos.y > halfArenaHeight )
+        {
+            rb.velocity = new Vector2( rb.velocity.x , 0 );
+        }
+
         pos.x = Mathf.Clamp( pos.x , -halfArenaWidth , halfArenaWidth );
         pos.y = Mathf.Clamp( pos.y , -halfArenaHeight , halfArenaHeight );
 
